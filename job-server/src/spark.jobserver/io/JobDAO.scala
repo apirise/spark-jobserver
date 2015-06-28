@@ -55,6 +55,13 @@ trait JobDAO {
   def saveJobInfo(jobInfo: JobInfo)
 
   /**
+   * Remove job info.
+   *
+   * @param jobId
+   */
+  def removeJobInfo(jobId: String)
+
+  /**
    * Return all job ids to their job info.
    *
    * @return

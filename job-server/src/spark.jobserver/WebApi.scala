@@ -236,6 +236,14 @@ class WebApi(system: ActorSystem,
             }
           }
         } ~
+        (delete & path(Segment / "remove")) { jobId =>
+            val future = jobInfo ? RemoveJobInfo(jobId)
+            respondWithMediaType(MediaTypes.`application/json`) { ctx =>
+              future.map {
+                case _ => ctx.complete(Map(StatusKey -> "REMOVED"))
+              }
+            }
+          } ~
       /**
        * GET /jobs   -- returns a JSON list of hashes containing job status, ex:
        * [

@@ -9,7 +9,7 @@ import scala.slick.jdbc.meta.MTable
 
 
 class JobSqlDAO(config: Config) extends JobDAO {
-  import scala.slick.driver.H2Driver.simple._
+  import scala.slick.driver.MySQLDriver.simple._
 
   private val logger = LoggerFactory.getLogger(getClass)
 
@@ -56,7 +56,9 @@ class JobSqlDAO(config: Config) extends JobDAO {
   // DB initialization
   val defaultJdbcUrl = "jdbc:h2:file:" + rootDir + "/h2-db"
   val jdbcUrl = getOrElse(config.getString("spark.jobserver.sqldao.jdbc.url"), defaultJdbcUrl)
-  val db = Database.forURL(jdbcUrl, driver = "org.h2.Driver")
+  val defaultJdbcDriver = "org.h2.Driver"
+  val jdbcDriver = getOrElse(config.getString("spark.jobserver.sqldao.jdbc.driver"), defaultJdbcDriver)
+  val db = Database.forURL(jdbcUrl, driver = jdbcDriver)
 
   // Server initialization
   init()
@@ -251,6 +253,13 @@ class JobSqlDAO(config: Config) extends JobDAO {
           case 0 => jobs += (jobId, contextName, jarId, classPath, start, endOpt, errOpt)
           case _ => updateQuery.update(endOpt, errOpt)
         }
+    }
+  }
+
+  override def removeJobInfo(jobId: String) {
+    db withSession {
+      implicit sessions =>
+        jobs.filter(_.jobId === jobId).delete
     }
   }
 

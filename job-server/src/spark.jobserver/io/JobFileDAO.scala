@@ -176,6 +176,9 @@ class JobFileDAO(config: Config) extends JobDAO {
     configs(jobId) = jobConfig
   }
 
+  override def removeJobInfo(jobId: String) {
+  }
+
   override def getJobConfigs: Map[String, Config] = configs.toMap
 
   private def writeJobConfig(out: DataOutputStream, jobId: String, jobConfig: Config) {

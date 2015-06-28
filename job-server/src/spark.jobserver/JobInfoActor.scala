@@ -14,6 +14,7 @@ object JobInfoActor {
   case class GetJobStatuses(limit: Option[Int])
   case class GetJobConfig(jobId: String)
   case class StoreJobConfig(jobId: String, jobConfig: Config)
+  case class RemoveJobInfo(jobId: String)
 
   // Responses
   case object JobConfigStored
@@ -60,6 +61,7 @@ class JobInfoActor(jobDao: JobDAO, contextSupervisor: ActorRef) extends Instrume
 
         val receiver = sender // must capture the sender since callbacks are run in a different thread
         for (result <- (resultActor ? GetJobResult(jobId))) {
+            println(jobId, result)
           receiver ! result // a JobResult(jobId, result) object is sent
         }
       }
@@ -70,5 +72,8 @@ class JobInfoActor(jobDao: JobDAO, contextSupervisor: ActorRef) extends Instrume
     case StoreJobConfig(jobId, jobConfig) =>
       jobDao.saveJobConfig(jobId, jobConfig)
       sender ! JobConfigStored
+
+    case RemoveJobInfo(jobId) =>
+      sender ! jobDao.removeJobInfo(jobId)
   }
 }
